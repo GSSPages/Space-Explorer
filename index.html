@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Space Explorer</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="game-container">
+    <div id="left-panel">
+      <h2>Ship Status</h2>
+      <label>Ship Name: <input id="shipName" type="text" /></label>
+      <button id="saveNameBtn">Save</button>
+      <div class="stat">
+        <label>Crew:</label>
+        <progress id="crewBar" max="100" value="50"></progress>
+        <span id="crewText">50 / 100</span>
+      </div>
+      <div class="stat">
+        <label>Energy:</label>
+        <progress id="energyBar" max="100" value="50"></progress>
+        <span id="energyText">50 / 100</span>
+      </div>
+      <p>Turn: <span id="turn">0</span></p>
+      <p>Distance: <span id="distance">0</span></p>
+      <button id="resetBtn">Reset</button>
+    </div>
+
+    <div id="right-panel">
+      <h2 id="encounter-title">— Ready —</h2>
+      <canvas id="scene" width="400" height="300"></canvas>
+    </div>
+  </div>
+
+  <div id="log-container">
+    <h3>Mission Log</h3>
+    <div id="mission-log"></div>
+    <button id="engageBtn">Engage!</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

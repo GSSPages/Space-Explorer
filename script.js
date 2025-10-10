@@ -1,0 +1,1 @@
+<the script.js content from previous message>
