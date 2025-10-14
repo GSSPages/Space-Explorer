@@ -1,4 +1,49 @@
 document.addEventListener('DOMContentLoaded', () => {
+  
+    // Menu starfield setup
+  const starCanvas = document.getElementById('starfield');
+  const starCtx = starCanvas.getContext('2d');
+  let stars = [];
+  const numStars = 150;
+
+  function resizeStarCanvas() {
+    starCanvas.width = window.innerWidth;
+    starCanvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resizeStarCanvas);
+  resizeStarCanvas();
+
+  // Create stars
+  for (let i = 0; i < numStars; i++) {
+    stars.push({
+      x: Math.random() * starCanvas.width,
+      y: Math.random() * starCanvas.height,
+      speed: Math.random() * 0.8 + 0.2,
+      size: Math.random() * 2 + 1
+    });
+  }
+
+  // Animate
+  function animateStarfield() {
+    starCtx.fillStyle = 'black';
+    starCtx.fillRect(0, 0, starCanvas.width, starCanvas.height);
+
+    starCtx.fillStyle = 'white';
+    for (let s of stars) {
+      starCtx.fillRect(s.x, s.y, s.size, s.size);
+      s.x -= s.speed;
+      if (s.x < 0) {
+        s.x = starCanvas.width;
+        s.y = Math.random() * starCanvas.height;
+        s.speed = Math.random() * 0.8 + 0.2;
+      }
+    }
+    requestAnimationFrame(animateStarfield);
+  }
+
+  animateStarfield();
+
+  // === CONTINUE YOUR EXISTING GAME LOGIC ===
   // Constants
   const MAX_CREW = 100, MAX_ENERGY = 100, HS_KEY = 'engage_highscores_v1', STATE_KEY = 'engage_state_v1';
 
