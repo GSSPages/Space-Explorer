@@ -51,10 +51,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Encounters
   const encounters = [
     { key: 'empty', name: 'Empty Space', crewRange: [0,0], energyRange: [0,0] },
-    { key: 'gas', name: 'Gas Cloud', crewRange: [0,0], energyRange: [-2,15] },
-    { key: 'lifeless', name: 'Lifeless Planet', crewRange: [-2,0], energyRange: [-10,20] },
-    { key: 'hostile', name: 'Hostile Planet', crewRange: [-20,0], energyRange: [-15,1] },
-    { key: 'advanced', name: 'Advanced Planet', crewRange: [-5,10], energyRange: [-2,20] }
+    { key: 'gas', name: 'Gas Cloud', crewRange: [0,0], energyRange: [-2,32] },
+    { key: 'lifeless', name: 'Lifeless Planet', crewRange: [-2,0], energyRange: [-19,59] },
+    { key: 'hostile', name: 'Hostile Planet', crewRange: [-20,0], energyRange: [-29,1] },
+    { key: 'advanced', name: 'Advanced Planet', crewRange: [0,10], energyRange: [-2,40] }
   ];
 
   // Utility
@@ -201,8 +201,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Check for space port every 10 turns
     if(state.turn % 10 === 0){
-      const crewGain = randomInt(0,10);
-      const energyGain = randomInt(1,20);
+      const crewGain = randomInt(0,30);
+      const energyGain = randomInt(1,53);
       state.crew = clamp(state.crew + crewGain, 0, MAX_CREW);
       state.energy = clamp(state.energy + energyGain, 0, MAX_ENERGY);
       const desc = `Travel cost ${formatDelta(-travelCost)} energy. Docked at Space Port: Crew ${formatDelta(crewGain)}, Energy ${formatDelta(energyGain)}. Totals — Crew: ${state.crew}, Energy: ${state.energy}`;
