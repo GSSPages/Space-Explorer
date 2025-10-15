@@ -1,119 +1,155 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // ==================== STARFIELD ====================
-  const starCanvas = document.getElementById('starfield');
-  const starCtx = starCanvas.getContext('2d');
-  let stars = [];
-  const numStars = 120;
+    const startMenu = document.getElementById('start-menu');
+    const highScoresScreen = document.getElementById('high-scores');
+    const nameInputScreen = document.getElementById('name-input-screen');
+    const gameScreen = document.getElementById('game-screen');
+    const popup = document.getElementById('game-over-popup');
 
-  function resizeStarfield() {
-    starCanvas.width = window.innerWidth;
-    starCanvas.height = window.innerHeight;
-  }
-  window.addEventListener('resize', resizeStarfield);
-  resizeStarfield();
+    const startGameBtn = document.getElementById('start-game-btn');
+    const highScoresBtn = document.getElementById('high-scores-btn');
+    const backToMenuBtn = document.getElementById('back-to-menu');
+    const confirmNameBtn = document.getElementById('confirm-name-btn');
+    const engageBtn = document.getElementById('engage-btn');
+    const endMissionBtn = document.getElementById('end-mission-btn');
+    const newGameBtn = document.getElementById('new-game-btn');
+    const backToStartBtn = document.getElementById('back-to-start-btn');
+    const viewScoresBtn = document.getElementById('view-scores-btn');
 
-  for (let i = 0; i < numStars; i++) {
-    stars.push({
-      x: Math.random() * starCanvas.width,
-      y: Math.random() * starCanvas.height,
-      speed: 0.2 + Math.random() * 1.5
+    const shipDisplay = document.getElementById('ship-display');
+    const shipNameInput = document.getElementById('ship-name');
+    const turnCount = document.getElementById('turn-count');
+    const distanceCount = document.getElementById('distance-count');
+    const energyCount = document.getElementById('energy-count');
+    const crewCount = document.getElementById('crew-count');
+    const missionLog = document.getElementById('mission-log');
+
+    let turn = 0;
+    let distance = 0;
+    let energy = 100;
+    let crew = 10;
+    let shipName = '';
+
+    // Encounter data
+    const encounters = [
+        { key: 'empty', name: 'Empty Space', crewRange: [0,0], energyRange: [0,0] },
+        { key: 'gas', name: 'Gas Cloud', crewRange: [0,0], energyRange: [-2,32] },
+        { key: 'lifeless', name: 'Lifeless Planet', crewRange: [-2,0], energyRange: [-19,59] },
+        { key: 'hostile', name: 'Hostile Planet', crewRange: [-20,0], energyRange: [-29,1] },
+        { key: 'advanced', name: 'Advanced Planet', crewRange: [0,10], energyRange: [-2,40] }
+    ];
+
+    function showScreen(screen) {
+        [startMenu, highScoresScreen, nameInputScreen, gameScreen, popup].forEach(s => s.classList.add('hidden'));
+        screen.classList.remove('hidden');
+    }
+
+    startGameBtn.addEventListener('click', () => showScreen(nameInputScreen));
+    highScoresBtn.addEventListener('click', () => showScreen(highScoresScreen));
+    backToMenuBtn.addEventListener('click', () => showScreen(startMenu));
+    newGameBtn.addEventListener('click', () => location.reload());
+    backToStartBtn.addEventListener('click', () => showScreen(startMenu));
+    viewScoresBtn.addEventListener('click', () => showScreen(highScoresScreen));
+
+    confirmNameBtn.addEventListener('click', () => {
+        shipName = shipNameInput.value.trim() || "Unnamed Ship";
+        shipDisplay.textContent = `Ship: ${shipName}`;
+        resetGame();
+        showScreen(gameScreen);
+        logMission(`God's speed, ${shipName}. May your adventure among the stars be fruitful!`, 'neutral');
     });
-  }
 
-  function drawStars() {
-    starCtx.clearRect(0, 0, starCanvas.width, starCanvas.height);
-    starCtx.fillStyle = 'white';
-    stars.forEach(star => {
-      star.y += star.speed;
-      if (star.y > starCanvas.height) {
-        star.y = 0;
-        star.x = Math.random() * starCanvas.width;
-      }
-      starCtx.fillRect(star.x, star.y, 2, 2);
+    engageBtn.addEventListener('click', () => {
+        takeTurn();
     });
-    requestAnimationFrame(drawStars);
-  }
-  drawStars();
 
-  // ==================== DOM ELEMENTS ====================
-  const menuScreen = document.getElementById('menu-screen');
-  const nameScreen = document.getElementById('name-screen');
-  const highScoresScreen = document.getElementById('high-scores-screen');
-  const gameScreen = document.getElementById('game-screen');
+    endMissionBtn.addEventListener('click', () => {
+        showScreen(popup);
+    });
 
-  const startBtn = document.getElementById('start-game-btn');
-  const highScoresBtn = document.getElementById('high-scores-btn');
-  const backBtn = document.getElementById('back-btn');
-  const backToMenuBtn = document.getElementById('back-to-menu-btn');
-  const startMissionBtn = document.getElementById('start-mission-btn');
+    function resetGame() {
+        turn = 0;
+        distance = 0;
+        energy = 100;
+        crew = 10;
+        updateStats();
+        missionLog.innerHTML = '';
+    }
 
-  const highScoresList = document.getElementById('high-scores-list');
-  const shipNameInput = document.getElementById('ship-name-input');
+    function updateStats() {
+        turnCount.textContent = turn;
+        distanceCount.textContent = distance;
+        energyCount.textContent = energy;
+        crewCount.textContent = crew;
+    }
 
-  // ==================== BUTTON LOGIC ====================
-  startBtn.addEventListener('click', () => {
-    menuScreen.style.display = 'none';
-    nameScreen.style.display = 'flex';
-  });
+    function logMission(text, type) {
+        const entry = document.createElement('div');
+        entry.textContent = text;
+        if (type === 'positive') entry.style.color = 'green';
+        if (type === 'negative') entry.style.color = 'red';
+        if (type === 'neutral') entry.style.color = 'yellow';
+        missionLog.prepend(entry);
+    }
 
-  highScoresBtn.addEventListener('click', () => {
-    menuScreen.style.display = 'none';
-    highScoresScreen.style.display = 'flex';
-    loadHighScores();
-  });
+    function randomInRange(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
 
-  backBtn.addEventListener('click', () => {
-    highScoresScreen.style.display = 'none';
-    menuScreen.style.display = 'flex';
-  });
+    function takeTurn() {
+        turn++;
+        const encounter = encounters[Math.floor(Math.random() * encounters.length)];
+        const crewChange = randomInRange(encounter.crewRange[0], encounter.crewRange[1]);
+        const energyChange = randomInRange(encounter.energyRange[0], encounter.energyRange[1]);
 
-  backToMenuBtn.addEventListener('click', () => {
-    nameScreen.style.display = 'none';
-    menuScreen.style.display = 'flex';
-  });
+        crew += crewChange;
+        energy += energyChange;
+        distance += Math.abs(energyChange);
 
-  startMissionBtn.addEventListener('click', () => {
-    const shipName = shipNameInput.value.trim() || "Unnamed Ship";
-    startGame(shipName);
-  });
+        let type = 'neutral';
+        if (energyChange > 0) type = 'positive';
+        if (energyChange < 0) type = 'negative';
 
-  // ==================== GAME LOGIC ====================
-  let energy = 100;
-  let distance = 0;
-  let turns = 0;
-  let missionLog = [];
+        logMission(`${encounter.name}: Crew ${crewChange}, Energy ${energyChange}`, type);
+        updateStats();
 
-  const encounters = [
-    { key: 'empty', name: 'Empty Space', crewRange: [0,0], energyRange: [0,0] },
-    { key: 'gas', name: 'Gas Cloud', crewRange: [0,0], energyRange: [-2,32] },
-    { key: 'lifeless', name: 'Lifeless Planet', crewRange: [-2,0], energyRange: [-19,59] },
-    { key: 'hostile', name: 'Hostile Planet', crewRange: [-20,0], energyRange: [-29,1] },
-    { key: 'advanced', name: 'Advanced Planet', crewRange: [0,10], energyRange: [-2,40] }
-  ];
+        if (crew <= 0 || energy <= 0) {
+            logMission("Mission failed. Out of resources.", 'negative');
+            showScreen(popup);
+        }
+    }
 
-  function startGame(shipName) {
-    nameScreen.style.display = 'none';
-    gameScreen.style.display = 'flex';
-    energy = 100;
-    distance = 0;
-    turns = 0;
-    missionLog = [];
-    addMissionLog(`God's speed, ${shipName}. May your adventure among the stars be fruitful!`);
-    updateGameInfo();
-  }
+    // STARFIELD ANIMATION
+    const canvas = document.getElementById('starfield');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
 
-  function addMissionLog(message) {
-    missionLog.unshift(message);
-    const logDiv = document.getElementById('mission-log');
-    logDiv.innerHTML = missionLog.map(line => `<div>${line}</div>`).join('');
-  }
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        stars = [];
+        for (let i = 0; i < 200; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                speed: 0.2 + Math.random() * 1.5
+            });
+        }
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
 
-  function updateGameInfo() {
-    const info = document.getElementById('game-info');
-    info.innerHTML = `Energy: ${energy} | Distance: ${distance} | Turns: ${turns}`;
-  }
-
-  function loadHighScores() {
-    highScoresList.innerHTML = "<li>No scores yet</li>";
-  }
+    function animateStars() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'white';
+        stars.forEach(star => {
+            star.y += star.speed;
+            if (star.y > canvas.height) {
+                star.y = 0;
+                star.x = Math.random() * canvas.width;
+            }
+            ctx.fillRect(star.x, star.y, 2, 2);
+        });
+        requestAnimationFrame(animateStars);
+    }
+    animateStars();
 });
